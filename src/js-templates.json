@@ -1,0 +1,108 @@
+{
+    "background": {
+      "mystical_purple": "linear-gradient(135deg, #2d1b69 0%, #5b21b6 50%, #2d1b69 100%)",
+      "cosmic_blue": "linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%)",
+      "golden_mystic": "linear-gradient(135deg, #451a03 0%, #92400e 50%, #451a03 100%)",
+      "ethereal_white": "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f8fafc 100%)",
+      "dark_void": "linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%)",
+      "emerald_green": "linear-gradient(135deg, #10b981 0%, #047857 100%)",
+      "blood_red": "linear-gradient(135deg, #991b1b 0%, #f87171 100%)",
+      "neon_pink": "linear-gradient(135deg, #ec4899 0%, #f472b6 100%)",
+      "cyber_yellow": "linear-gradient(135deg, #facc15 0%, #f59e42 100%)",
+      "arctic_aqua": "linear-gradient(135deg, #67e8f9 0%, #0ea5e9 100%)",
+      "lava_orange": "linear-gradient(135deg, #f97316 0%, #ea580c 100%)",
+      "abyss_blue": "linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%)",
+      "toxic_lime": "linear-gradient(135deg, #a3e635 0%, #65a30d 100%)",
+      "rose_gold": "linear-gradient(135deg, #fbbf24 0%, #f472b6 100%)",
+      "obsidian_black": "linear-gradient(135deg, #111111 0%, #232323 100%)",
+      "ultraviolet": "linear-gradient(135deg, #a21caf 0%, #7c3aed 100%)"
+    },
+    
+    "mainSymbol": {
+      "star": "⭐",
+      "moon": "🌙",
+      "sun": "☀️",
+      "crystal": "🔮",
+      "eye": "👁️",
+      "heart": "❤️",
+      "diamond": "💎",
+      "cross": "✝️",
+      "infinity": "∞",
+      "spiral": "🌀",
+      "balloon": "🎈",
+      "flask": "🧪",
+      "puppet": "☮️",
+      "taco": "🌮",
+      "acai": "🫐",
+      "diesel": "🛢️",
+      "clock": "⏰",
+      "chick": "🐥",
+      "fartane": "💀",
+      "arbuz": "🍉"
+    },
+    
+    "cardTitles": {
+      "the_star": "THE STAR",
+      "the_moon": "THE MOON",
+      "the_sun": "THE SUN",
+      "the_tower": "THE TOWER",
+      "the_wheel": "THE WHEEL",
+      "the_hermit": "THE HERMIT",
+      "the_magician": "THE MAGICIAN",
+      "the_priestess": "THE PRIESTESS",
+      "the_emperor": "THE EMPEROR",
+      "the_empress": "THE EMPRESS",
+      "airhead_card": "AIRHEAD CARD",
+      "mist_card": "MIST CARD",
+      "puppet_card": "PUPPET CARD",
+      "taco_card": "TACO CARD",
+      "acai_card": "ACAI CARD",
+      "diesel_card": "DIESEL CARD",
+      "clockin_card": "CLOCKIN CARD",
+      "cheekyb_card": "CHEEKYB CARD",
+      "fartane_card": "FARTANE CARD",
+      "arbuz_card": "ARBUZ CARD"
+    },
+    
+    "cardNumbers": {
+      "xvii": "XVII",
+      "xviii": "XVIII",
+      "xix": "XIX",
+      "xvi": "XVI",
+      "xv": "XV",
+      "ix": "IX",
+      "xiv": "XIV",
+      "ii": "i",
+      "iv": "IV",
+      "iii": "III",
+      "v": "V",
+      "vi": "VI",
+      "vii": "VII",
+      "viii": "VIII",
+      "i": "i",
+      "xi": "XI",
+      "xii": "XII",
+      "xiii": "XIII",
+      "xx": "XX",
+      "x": "X"
+    },
+    
+    "borderColors": {
+      "gold": "#ffd700",
+      "silver": "#c0c0c0",
+      "bronze": "#cd7f32",
+      "purple": "#8b5cf6",
+      "blue": "#3b82f6",
+      "red": "#ef4444",
+      "green": "#10b981"
+    },
+    
+    "glowColors": {
+      "gold": "rgba(255, 215, 0, 0.3)",
+      "silver": "rgba(192, 192, 192, 0.3)",
+      "purple": "rgba(139, 92, 246, 0.3)",
+      "blue": "rgba(59, 130, 246, 0.3)",
+      "green": "rgba(34, 197, 94, 0.3)",
+      "red": "rgba(239, 68, 68, 0.3)"
+    }
+  }
