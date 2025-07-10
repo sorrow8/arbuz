@@ -29,6 +29,3 @@ Get the prediction for a specific orbital by index:
 ```bash
 oyl alkane execute -data 2,tx,1000,0 -p regtest
 ```
-
----
-MIT License 
