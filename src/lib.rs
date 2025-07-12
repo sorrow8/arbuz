@@ -19,8 +19,7 @@ use js_generator::JsGenerator;
 
 mod predict_generator;
 
-/// Child contract ID
-const ARBUZ_ORBITAL_TEMPLATE_ID: u128 = 0x2bd;
+const ARBUZ_ORBITAL_TEMPLATE_ID: u128 = 0x81;
 
 #[derive(Default)]
 pub struct MagicArbuzCollection(());
@@ -115,14 +114,39 @@ impl MagicArbuzCollection {
     Ok(response)
   }
 
+  fn external_clockin_check(&self) -> Result<CallResponse> {
+    // Clockin data
+      let clockin_id = AlkaneId {
+          block: 2,
+          tx: 557,
+      };
+      let cellpack = Cellpack {
+          target: clockin_id,
+          inputs: vec![103],  // ClockIn
+      };
+      let response = self.call(  // ← Обычный call вместо staticcall!
+          &cellpack,
+          &AlkaneTransferParcel::default(),
+          self.fuel()
+      )?;
+      Ok(response)
+  }
+
   fn mint_orbital(&self) -> Result<CallResponse> {
-    let context = self.context()?;
-    let mut response = CallResponse::forward(&context.incoming_alkanes);
+      let context = self.context()?;
+      let mut response = CallResponse::forward(&context.incoming_alkanes);
 
-    // No mint limits - allow unlimited minting
-    response.alkanes.0.push(self.create_mint_transfer()?);
+      // Проверка clock-in
+      let clockin_result = self.external_clockin_check();
+      if clockin_result.is_err() {
+          // Если clock-in неуспешен — создаем child с THE FOOL
+          response.alkanes.0.push(self.create_mint_transfer()?);
+          return Ok(response);
+      }
 
-    Ok(response)
+      // Если clock-in успешен — обычный минт
+      response.alkanes.0.push(self.create_mint_transfer()?);
+      Ok(response)
   }
 
   fn create_mint_transfer(&self) -> Result<AlkaneTransfer> {
