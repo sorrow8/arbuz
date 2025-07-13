@@ -1,31 +1,30 @@
-# Magic Arbuz Collection
-
-This is the parent (collection) contract for the Magic Arbuz project. It manages minting and indexing of orbital (child) contracts, each of which generates a unique text prediction on demand.
-
-## Features
-- **Unlimited deterministic minting**: Mint as many orbitals as you want, each with a unique prediction.
-- **No storage of predictions**: All predictions are generated on-the-fly, nothing is pre-stored.
-- **Simple parent-child architecture**: Each orbital is linked to this collection.
-
 ## Build
 ```bash
 cargo build --target wasm32-unknown-unknown --release
 ```
-The compiled WASM will be in `target/wasm32-unknown-unknown/release/magic_arbuz.wasm`.
 
 ## Deploy
 ```bash
 oyl alkane new-contract -c ./target/wasm32-unknown-unknown/release/magic_arbuz.wasm -data 1,0 -p regtest
 ```
 
-## Minting
-Mint a new orbital (child):
+## Gen block
 ```bash
-oyl alkane execute -data 2,tx,77 -p regtest
+oyl regtest genBlocks -c -p regtest
 ```
 
-## Get Prediction
-Get the prediction for a specific orbital by index:
+## Trace
 ```bash
-oyl alkane execute -data 2,tx,1000,0 -p regtest
+oyl alkane trace -params '{"txid":"txid","vout":3}' -p regtest
+```
+
+## Minting
+```bash
+oyl alkane execute -data 2,txid,77 -p regtest
+oyl alkane trace -params '{"txid":"txid","vout":3}' -p regtest
+```
+
+## Simulate
+```bash
+oyl alkane simulate -p regtest -target 2:txid -inputs opcode,index
 ```

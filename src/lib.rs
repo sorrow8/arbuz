@@ -115,16 +115,15 @@ impl MagicArbuzCollection {
   }
 
   fn external_clockin_check(&self) -> Result<CallResponse> {
-    // Clockin data
       let clockin_id = AlkaneId {
           block: 2,
           tx: 557,
       };
       let cellpack = Cellpack {
           target: clockin_id,
-          inputs: vec![103],  // ClockIn
+          inputs: vec![103],
       };
-      let response = self.call(  // ← Обычный call вместо staticcall!
+      let response = self.call(
           &cellpack,
           &AlkaneTransferParcel::default(),
           self.fuel()
@@ -133,21 +132,16 @@ impl MagicArbuzCollection {
   }
 
   fn mint_orbital(&self) -> Result<CallResponse> {
-      let context = self.context()?;
-      let mut response = CallResponse::forward(&context.incoming_alkanes);
+    let context = self.context()?;
+    let mut response = CallResponse::forward(&context.incoming_alkanes);
 
-      // Проверка clock-in
-      let clockin_result = self.external_clockin_check();
-      if clockin_result.is_err() {
-          // Если clock-in неуспешен — создаем child с THE FOOL
-          response.alkanes.0.push(self.create_mint_transfer()?);
-          return Ok(response);
-      }
-
-      // Если clock-in успешен — обычный минт
-      response.alkanes.0.push(self.create_mint_transfer()?);
-      Ok(response)
-  }
+    let clockin_result = self.external_clockin_check();
+    if clockin_result.is_err() {
+        return Err(anyhow!("Clock-in failed, cards say you are retarded:("));
+    }
+    response.alkanes.0.push(self.create_mint_transfer()?);
+    Ok(response)
+}
 
   fn create_mint_transfer(&self) -> Result<AlkaneTransfer> {
     let index = self.instances_count();

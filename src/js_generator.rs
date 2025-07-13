@@ -16,47 +16,37 @@ impl JsGenerator {
     let backgrounds = vec!["mystical_purple", "cosmic_blue", "golden_mystic", "ethereal_white", "dark_void", "emerald_green", "blood_red", "neon_pink", "cyber_yellow", "arctic_aqua", "lava_orange", "abyss_blue", "toxic_lime", "rose_gold", "obsidian_black", "ultraviolet"];
     let border_colors = vec!["gold", "silver", "bronze", "purple", "blue", "red", "green"];
     let glow_colors = vec!["gold", "silver", "purple", "blue", "green", "red"];
-    // classic
     let classic_main_symbols = vec!["star", "moon", "sun", "crystal", "eye", "heart", "diamond", "cross", "infinity", "spiral"];
     let classic_card_titles = vec!["the_star", "the_moon", "the_sun", "the_tower", "the_wheel", "the_hermit", "the_magician", "the_priestess", "the_emperor", "the_empress"];
     let classic_card_numbers = vec!["xvii", "xviii", "xix", "xvi", "xv", "ix", "xiv", "i", "iv", "iii"];
-    // glitch
     let glitch_main_symbols = vec!["balloon", "flask", "puppet", "taco", "acai", "diesel", "clock", "chick"];
     let glitch_card_titles = vec!["airhead_card", "mist_card", "puppet_card", "taco_card", "acai_card", "diesel_card", "clockin_card", "cheekyb_card"];
     let glitch_card_numbers = vec!["v", "vi", "vii", "viii", "i", "xi", "xii", "xiii"];
-    // absolute
     let absolute_main_symbol = vec!["fartane", "arbuz"];
-    // Генерируем "закодированное число" на лету через хеш
+    
     let mut hasher = Sha256::new();
     hasher.update(index.to_le_bytes());
     let hash = hasher.finalize();
     
-    // Используем первые 8 байт для создания "закодированного" числа
     let encoded = u64::from_le_bytes(hash[0..8].try_into().unwrap());
     
-    // Битовая структура (как у панд)
-    let background_bits = 4;  // 16 вариантов фонов (2^4 = 16)
-    let classic_card_bits = 4;        // 10 вариантов карт (2^4 = 16, достаточно для 10)
-    let glitch_card_bits = 3;         // 8 вариантов glitch карт (2^3 = 8, достаточно для 8)
-    let mystical_bits = 4;    // максимум 10 символов (2^4 = 16, достаточно для 10)
-    let border_bits = 3;      // 7 вариантов границ (2^3 = 8, достаточно для 7)
-    let glow_bits = 3;        // 6 вариантов свечения (2^3 = 8, достаточно для 6)
+    let background_bits = 4;
+    let classic_card_bits = 4;
+    let glitch_card_bits = 3;
+    let mystical_bits = 4;
+    let border_bits = 3;
+    let glow_bits = 3;
     
-    // Декодируем атрибуты из "закодированного" числа
     let background_code = (encoded & ((1u64 << background_bits) - 1)) as usize;
-    // шанс на absolute: 0.5% (1/200)
     let absolute_chance_byte = hash[25];
-    let is_absolute = absolute_chance_byte < 1; // 1/256 ≈ 0.4%, близко к 0.5%
+    let is_absolute = absolute_chance_byte < 1;
     
-    // шанс на glitch: 5% (13/256) - только если не absolute
     let chance_byte = hash[24];
     let is_glitch = !is_absolute && chance_byte < 13;
     
     let (main_symbol, card_title, card_number, border_color, glow_color) = if is_absolute {
-      // Определяем какой absolute карта на основе индекса
-      let absolute_card_code = (encoded & 1) as usize; // 0 или 1
+      let absolute_card_code = (encoded & 1) as usize;
       if absolute_card_code == 0 {
-        // fartane card
         (
           "fartane",
           "fartane_card", 
@@ -65,7 +55,6 @@ impl JsGenerator {
           "silver"
         )
       } else {
-        // arbuz card
         (
           "arbuz",
           "arbuz_card",
@@ -119,19 +108,16 @@ impl JsGenerator {
     };
     
     let mystical_symbols_array = if is_absolute {
-      // Для absolute карт используем absolute символы
       let m1 = absolute_main_symbol[mystical1_code % absolute_main_symbol.len()];
       let m2 = absolute_main_symbol[mystical2_code % absolute_main_symbol.len()];
       let m3 = absolute_main_symbol[mystical3_code % absolute_main_symbol.len()];
       vec![m1, m2, m3]
     } else if is_glitch {
-      // Для glitch карт используем только glitch символы
       let m1 = glitch_main_symbols[mystical1_code % glitch_main_symbols.len()];
       let m2 = glitch_main_symbols[mystical2_code % glitch_main_symbols.len()];
       let m3 = glitch_main_symbols[mystical3_code % glitch_main_symbols.len()];
       vec![m1, m2, m3]
     } else {
-      // Для классических карт используем только классические символы
       let m1 = classic_main_symbols[mystical1_code % classic_main_symbols.len()];
       let m2 = classic_main_symbols[mystical2_code % classic_main_symbols.len()];
       let m3 = classic_main_symbols[mystical3_code % classic_main_symbols.len()];
@@ -139,12 +125,11 @@ impl JsGenerator {
     };
     
     let background = if is_absolute {
-      // Для absolute карт используем фиксированные фоны
       let absolute_card_code = (encoded & 1) as usize;
       if absolute_card_code == 0 {
-        "lava_orange" // fartane card
+        "lava_orange"
       } else {
-        "blood_red" // arbuz card
+        "blood_red"
       }
     } else {
       backgrounds[background_code % backgrounds.len()]
@@ -274,9 +259,8 @@ impl JsGenerator {
     js.push_str("</div>\n          <div class=\"card-message\">\n            <div class=\"card-message-text\">");
     js.push_str(&prediction_eng);
     js.push_str("</div>\n          </div>\n");
-    // Добавляем кнопку-переключатель языка
     js.push_str("<button class=\"lang-switch\" style=\"position:absolute;top:10px;right:10px;z-index:10;padding:4px 12px;border-radius:8px;border:none;background:#fff3;backdrop-filter:blur(2px);color:#6b7280;font-weight:700;cursor:pointer;transition:background 0.2s;\">🇨🇳</button>");
-    js.push_str("\n        </div>\n      </div>\n    </div>\n  `;\n\n  container.innerHTML = styles + html;\n\n  const tarotCard = container.querySelector('.tarot-card');\n  if (tarotCard) {\n    tarotCard.addEventListener('mousemove', function(e) {\n      const rect = tarotCard.getBoundingClientRect();\n      const x = e.clientX - rect.left;\n      const y = e.clientY - rect.top;\n      const centerX = rect.width / 2;\n      const centerY = rect.height / 2;\n      let rotateX = (y - centerY) / 10;\n      let rotateY = (centerX - x) / 10;\n      const maxAngle = 10;\n      rotateX = Math.max(-maxAngle, Math.min(maxAngle, rotateX));\n      rotateY = Math.max(-maxAngle, Math.min(maxAngle, rotateY));\n      tarotCard.style.transform = 'rotateY(' + rotateY + 'deg) rotateX(' + rotateX + 'deg) scale(1.05)';\n      tarotCard.style.filter = 'drop-shadow(0 30px 60px rgba(0,0,0,0.6))';\n    });\n    tarotCard.addEventListener('mouseleave', function() {\n      tarotCard.style.transform = 'rotateY(0deg) rotateX(0deg) scale(1)';\n      tarotCard.style.filter = 'drop-shadow(0 20px 40px rgba(0,0,0,0.5))';\n    });\n  }\n  // Логика переключения языка\n  const langBtn = container.querySelector('.lang-switch');\n  const messageDiv = container.querySelector('.card-message-text');\n  let currentLang = 'eng';\n  if (langBtn && messageDiv) {\n    langBtn.addEventListener('click', function() {\n      if (currentLang === 'eng') {\n        messageDiv.textContent = cardData.message_cn;\n        langBtn.textContent = '🇺🇸';\n        currentLang = 'cn';\n      } else {\n        messageDiv.textContent = cardData.message_eng;\n        langBtn.textContent = '🇨🇳';\n        currentLang = 'eng';\n      }\n    });\n  }\n}\n\nif (typeof document !== 'undefined') {\n  document.addEventListener('DOMContentLoaded', function() {\n    createTarotCard('tarot-container');\n  });\n}");
+    js.push_str("\n        </div>\n      </div>\n    </div>\n  `;\n\n  container.innerHTML = styles + html;\n\n  const tarotCard = container.querySelector('.tarot-card');\n  if (tarotCard) {\n    tarotCard.addEventListener('mousemove', function(e) {\n      const rect = tarotCard.getBoundingClientRect();\n      const x = e.clientX - rect.left;\n      const y = e.clientY - rect.top;\n      const centerX = rect.width / 2;\n      const centerY = rect.height / 2;\n      let rotateX = (y - centerY) / 10;\n      let rotateY = (centerX - x) / 10;\n      const maxAngle = 10;\n      rotateX = Math.max(-maxAngle, Math.min(maxAngle, rotateX));\n      rotateY = Math.max(-maxAngle, Math.min(maxAngle, rotateY));\n      tarotCard.style.transform = 'rotateY(' + rotateY + 'deg) rotateX(' + rotateX + 'deg) scale(1.05)';\n      tarotCard.style.filter = 'drop-shadow(0 30px 60px rgba(0,0,0,0.6))';\n    });\n    tarotCard.addEventListener('mouseleave', function() {\n      tarotCard.style.transform = 'rotateY(0deg) rotateX(0deg) scale(1)';\n      tarotCard.style.filter = 'drop-shadow(0 20px 40px rgba(0,0,0,0.5))';\n    });\n  }\n  const langBtn = container.querySelector('.lang-switch');\n  const messageDiv = container.querySelector('.card-message-text');\n  let currentLang = 'eng';\n  if (langBtn && messageDiv) {\n    langBtn.addEventListener('click', function() {\n      if (currentLang === 'eng') {\n        messageDiv.textContent = cardData.message_cn;\n        langBtn.textContent = '🇺🇸';\n        currentLang = 'cn';\n      } else {\n        messageDiv.textContent = cardData.message_eng;\n        langBtn.textContent = '🇨🇳';\n        currentLang = 'eng';\n      }\n    });\n  }\n}\n\nif (typeof document !== 'undefined') {\n  document.addEventListener('DOMContentLoaded', function() {\n    createTarotCard('tarot-container');\n  });\n}");
 
     Ok(js)
   }
