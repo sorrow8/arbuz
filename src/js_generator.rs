@@ -16,8 +16,8 @@ impl JsGenerator {
     let backgrounds = vec!["mystical_purple", "cosmic_blue", "golden_mystic", "ethereal_white", "dark_void", "emerald_green", "blood_red", "neon_pink", "cyber_yellow", "arctic_aqua", "lava_orange", "abyss_blue", "toxic_lime", "rose_gold", "obsidian_black", "ultraviolet"];
     let border_colors = vec!["gold", "silver", "bronze", "purple", "blue", "red", "green"];
     let glow_colors = vec!["gold", "silver", "purple", "blue", "green", "red"];
-    let classic_main_symbols = vec!["star", "moon", "sun", "crystal", "eye", "heart", "diamond", "cross", "infinity", "spiral"];
-    let classic_card_titles = vec!["the_star", "the_moon", "the_sun", "the_tower", "the_wheel", "the_hermit", "the_magician", "the_priestess", "the_emperor", "the_empress"];
+    let classic_main_symbols = vec!["star", "moon", "sun", "tower", "wheel", "hermit", "magician", "priestess", "emperor", "empress", "devil", "fool", "hierophant", "lovers", "chariot", "strength", "justice", "hanged_man", "death", "temperance", "judgement", "world"];
+    let classic_card_titles = vec!["the_star", "the_moon", "the_sun", "the_tower", "the_wheel", "the_hermit", "the_magician", "the_priestess", "the_emperor", "the_empress", "the_devil", "the_fool", "the_hierophant", "the_lovers", "the_chariot", "strength", "the_justice", "the_hanged_man", "death", "temperance", "judgement", "the_world"];
     let classic_card_numbers = vec!["xvii", "xviii", "xix", "xvi", "xv", "ix", "xiv", "i", "iv", "iii"];
     let glitch_main_symbols = vec!["balloon", "flask", "puppet", "taco", "acai", "diesel", "clock", "chick"];
     let glitch_card_titles = vec!["airhead_card", "mist_card", "puppet_card", "taco_card", "acai_card", "diesel_card", "clockin_card", "cheekyb_card"];
