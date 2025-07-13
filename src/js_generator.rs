@@ -12,16 +12,14 @@ impl JsGenerator {
     serde_json::from_str(JS_TEMPLATES_JSON).unwrap()
   }
 
-  pub fn decode_traits(index: u128) -> Result<(String, String, Vec<&'static str>, String, String, String, String)> {
-    let backgrounds = vec!["mystical_purple", "cosmic_blue", "golden_mystic", "ethereal_white", "dark_void", "emerald_green", "blood_red", "neon_pink", "cyber_yellow", "arctic_aqua", "lava_orange", "abyss_blue", "toxic_lime", "rose_gold", "obsidian_black", "ultraviolet"];
+  pub fn decode_traits(index: u128) -> Result<(String, String, Vec<&'static str>, String, String, String)> {
+    let backgrounds = vec!["mystical_purple", "cosmic_blue", "golden_mystic", "rose_gold", "dark_void", "emerald_green", "blood_red", "neon_pink", "cyber_yellow", "arctic_aqua", "lava_orange", "abyss_blue", "toxic_lime", "ethereal_white", "obsidian_black", "ultraviolet"];
     let border_colors = vec!["gold", "silver", "bronze", "purple", "blue", "red", "green"];
     let glow_colors = vec!["gold", "silver", "purple", "blue", "green", "red"];
     let classic_main_symbols = vec!["star", "moon", "sun", "tower", "wheel", "hermit", "magician", "priestess", "emperor", "empress", "devil", "fool", "hierophant", "lovers", "chariot", "strength", "justice", "hanged_man", "death", "temperance", "judgement", "world"];
     let classic_card_titles = vec!["the_star", "the_moon", "the_sun", "the_tower", "the_wheel", "the_hermit", "the_magician", "the_priestess", "the_emperor", "the_empress", "the_devil", "the_fool", "the_hierophant", "the_lovers", "the_chariot", "strength", "the_justice", "the_hanged_man", "death", "temperance", "judgement", "the_world"];
-    let classic_card_numbers = vec!["xvii", "xviii", "xix", "xvi", "xv", "ix", "xiv", "i", "iv", "iii"];
     let glitch_main_symbols = vec!["balloon", "flask", "puppet", "taco", "acai", "diesel", "clock", "chick"];
     let glitch_card_titles = vec!["airhead_card", "mist_card", "puppet_card", "taco_card", "acai_card", "diesel_card", "clockin_card", "cheekyb_card"];
-    let glitch_card_numbers = vec!["v", "vi", "vii", "viii", "i", "xi", "xii", "xiii"];
     let absolute_main_symbol = vec!["fartane", "arbuz"];
     
     let mut hasher = Sha256::new();
@@ -31,9 +29,9 @@ impl JsGenerator {
     let encoded = u64::from_le_bytes(hash[0..8].try_into().unwrap());
     
     let background_bits = 4;
-    let classic_card_bits = 4;
+    let classic_card_bits = 5;
     let glitch_card_bits = 3;
-    let mystical_bits = 4;
+    let mystical_bits = 5;
     let border_bits = 3;
     let glow_bits = 3;
     
@@ -44,13 +42,12 @@ impl JsGenerator {
     let chance_byte = hash[24];
     let is_glitch = !is_absolute && chance_byte < 13;
     
-    let (main_symbol, card_title, card_number, border_color, glow_color) = if is_absolute {
+    let (main_symbol, card_title, border_color, glow_color) = if is_absolute {
       let absolute_card_code = (encoded & 1) as usize;
       if absolute_card_code == 0 {
         (
           "fartane",
           "fartane_card", 
-          "xx",
           "silver",
           "silver"
         )
@@ -58,7 +55,6 @@ impl JsGenerator {
         (
           "arbuz",
           "arbuz_card",
-          "x", 
           "green",
           "green"
         )
@@ -68,7 +64,6 @@ impl JsGenerator {
       (
         glitch_main_symbols[glitch_card_code % glitch_main_symbols.len()],
         glitch_card_titles[glitch_card_code % glitch_card_titles.len()],
-        glitch_card_numbers[glitch_card_code % glitch_card_numbers.len()],
         "gold",
         "gold"
       )
@@ -79,7 +74,6 @@ impl JsGenerator {
       (
         classic_main_symbols[card_code % classic_main_symbols.len()],
         classic_card_titles[card_code % classic_card_titles.len()],
-        classic_card_numbers[card_code % classic_card_numbers.len()],
         border_colors[border_code % border_colors.len()],
         glow_colors[glow_code % glow_colors.len()]
       )
@@ -139,7 +133,6 @@ impl JsGenerator {
       main_symbol.to_string(),
       mystical_symbols_array,
       card_title.to_string(),
-      card_number.to_string(),
       border_color.to_string(),
       glow_color.to_string()
     ))
@@ -147,7 +140,7 @@ impl JsGenerator {
 
   pub fn get_attributes(index: u128) -> Result<String> {
     println!("[DEBUG] get_attributes called with index: {}", index);
-    let (background, main_symbol, mystical_symbols_array, card_title, card_number, border_color, glow_color) = Self::decode_traits(index)?;
+    let (background, main_symbol, mystical_symbols_array, card_title, border_color, glow_color) = Self::decode_traits(index)?;
     let (prediction_eng, prediction_cn) = crate::predict_generator::generate_prediction(index);
 
     let attributes = json!({
@@ -155,7 +148,7 @@ impl JsGenerator {
       "mainSymbol": main_symbol,
       "mysticalSymbols": mystical_symbols_array.join(","),
       "cardTitle": card_title,
-      "cardNumber": card_number,
+      "cardNumberIndex": index.to_string(),
       "borderColor": border_color,
       "glowColor": glow_color,
       "prediction_en": prediction_eng,
@@ -166,7 +159,7 @@ impl JsGenerator {
   }
 
   pub fn generate_js(index: u128) -> Result<String> {
-    let (background, main_symbol, mystical_symbols_array, card_title, card_number, border_color, glow_color) = Self::decode_traits(index)?;
+    let (background, main_symbol, mystical_symbols_array, card_title, border_color, glow_color) = Self::decode_traits(index)?;
     let (prediction_eng, prediction_cn) = generate_prediction(index);
 
     let js_templates = Self::get_js_templates();
@@ -174,14 +167,13 @@ impl JsGenerator {
     let background_value = js_templates["background"][&background].as_str().unwrap_or("linear-gradient(135deg,rgb(255, 255, 255) 0%,rgb(255, 255, 255) 50%,rgb(255, 255, 255) 100%)");
     let main_symbol_value = js_templates["mainSymbol"][&main_symbol].as_str().unwrap_or("🤡");
     let card_title_value = js_templates["cardTitles"][&card_title].as_str().unwrap_or("THE FOOL");
-    let card_number_value = js_templates["cardNumbers"][&card_number].as_str().unwrap_or("0");
     let border_color_value = js_templates["borderColors"][&border_color].as_str().unwrap_or("#ffffff");
     let glow_color_value = js_templates["glowColors"][&glow_color].as_str().unwrap_or("transparent");
 
     let mut js = String::from("function createTarotCard(containerId) {\n  const container = document.getElementById(containerId);\n  if (!container) {\n    console.error('Container with id ' + containerId + ' not found');\n    return;\n  }\n\n  const cardData = {\n    title: '");
     js.push_str(card_title_value);
     js.push_str("',\n    subtitle: '");
-    js.push_str(card_number_value);
+    js.push_str(&index.to_string());
     js.push_str("',\n    message_eng: '");
     js.push_str(&prediction_eng);
     js.push_str("',\n    message_cn: '");
@@ -236,8 +228,8 @@ impl JsGenerator {
       js.push_str(border_color_value);
       js.push_str(";\n        text-shadow: 0 0 20px ");
       js.push_str(glow_color_value);
-      js.push_str(";\n        animation: twinkle 4s ease-in-out infinite alternate;\n        z-index: 2;\n        position: relative;\n      }\n      .mystical-symbols {\n        display: flex;\n        justify-content: center;\n        gap: 10px;\n        margin-bottom: 10px;\n        margin-top: 0;\n      }\n      .mystical-symbol {\n        font-size: 32px;\n        text-shadow: 0 0 8px #a78bfa;\n        animation: glow 2.5s ease-in-out infinite alternate;\n      }\n      .small-stars-orbit{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:120px;height:120px;pointer-events:none;}.small-stars{font-size:24px;color:#c7d2fe;animation:sparkle 3s ease-in-out infinite alternate;z-index:1;pointer-events:none;}\n      .card-message {\n        text-align: center;\n        margin-top: 20px;\n      }\n      .card-message-text {\n        font-size: 16px;\n        font-weight: 600;\n        color: #cbd5e1;\n        font-style: italic;\n        line-height: 1.4;\n        text-shadow: -0.5px -0.5px 0 #222, 0.5px -0.5px 0 #222, -0.5px 0.5px 0 #222, 0.5px 0.5px 0 #222, 0 1px 4px rgba(30,30,30,0.18),0 0 5px rgba(203, 213, 225, 0.3);\n        animation: glow 4s ease-in-out infinite alternate;\n        animation-delay: 1.2s;\n        margin: 0;\n        margin-bottom: 40px;\n      }\n      .tarot-card:hover {\n        transform: rotateY(5deg) rotateX(5deg) scale(1.02);\n        filter: drop-shadow(0 25px 50px rgba(0,0,0,0.6));\n      }\n      .tarot-card:active {\n        transform: rotateY(10deg) rotateX(10deg) scale(0.98);\n      }\n    </style>\n  `;\n\n  const html = `\n    <div class=\"tarot-card-wrapper\">\n      <div class=\"tarot-card\">\n        <div class=\"tarot-card-front\">\n          <div class=\"tarot-card-border-decoration\" style=\"pointer-events:none;position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;\"><svg viewBox='0 0 350 600' width='100%' height='100%' fill='none' xmlns='http://www.w3.org/2000/svg' style='display:block;'><rect x='6' y='6' width='338' height='588' rx='18' stroke='#222' stroke-width='2.5' opacity='0.18'/><path d='M30 30 Q20 50 40 60 Q60 70 50 90' stroke='#222' stroke-width='2' fill='none' opacity='0.18'/><path d='M320 30 Q330 50 310 60 Q290 70 300 90' stroke='#222' stroke-width='2' fill='none' opacity='0.18'/><path d='M30 570 Q20 550 40 540 Q60 530 50 510' stroke='#222' stroke-width='2' fill='none' opacity='0.18'/><path d='M320 570 Q330 550 310 540 Q290 530 300 510' stroke='#222' stroke-width='2' fill='none' opacity='0.18'/><circle cx='30' cy='30' r='7' stroke='#222' stroke-width='2' fill='none' opacity='0.18'/><circle cx='320' cy='30' r='7' stroke='#222' stroke-width='2' fill='none' opacity='0.18'/><circle cx='30' cy='570' r='7' stroke='#222' stroke-width='2' fill='none' opacity='0.18'/><circle cx='320' cy='570' r='7' stroke='#222' stroke-width='2' fill='none' opacity='0.18'/></svg></div>\n          <div class=\"mystical-background\"></div>\n          <div class=\"card-number\">\n            <div class=\"card-number-text\">");
-    js.push_str(card_number_value);
+      js.push_str(";\n        animation: twinkle 4s ease-in-out infinite alternate;\n        z-index: 2;\n        position: relative;\n      }\n      .mystical-symbols {\n        display: flex;\n        justify-content: center;\n        gap: 10px;\n        margin-bottom: 10px;\n        margin-top: 0;\n      }\n      .mystical-symbol {\n        font-size: 32px;\n        text-shadow: 0 0 8px #a78bfa;\n        animation: glow 2.5s ease-in-out infinite alternate;\n      }\n      .small-stars-orbit{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:120px;height:120px;pointer-events:none;}.small-stars{font-size:24px;color:#c7d2fe;animation:sparkle 3s ease-in-out infinite alternate;z-index:1;pointer-events:none;}\n      .card-message {\n        text-align: center;\n        margin-top: 20px;\n      }\n      .card-message-text {\n        font-size: 16px;\n        font-weight: 600;\n        color: #cbd5e1;\n        font-style: italic;\n        line-height: 1.4;\n        text-shadow: -0.5px -0.5px 0 #222, 0.5px -0.5px 0 #222, -0.5px 0.5px 0 #222, 0.5px 0.5px 0 #222, 0 1px 4px rgba(30,30,30,0.18),0 0 5px rgba(203, 213, 225, 0.3);\n        animation: glow 4s ease-in-out infinite alternate;\n        animation-delay: 1.2s;\n        margin: 0;\n        margin-bottom: 40px;\n      }\n      .tarot-card:hover {\n        transform: rotateY(5deg) rotateX(5deg) scale(1.02);\n        filter: drop-shadow(0 25px 50px rgba(0,0,0,0.6));\n      }\n      .tarot-card:active {\n        transform: rotateY(10deg) rotateX(10deg) scale(0.98);\n      }\n    </style>\n  `;\n\n  const html = `\n    <div class=\"tarot-card-wrapper\">\n      <div class=\"tarot-card\">\n        <div class=\"tarot-card-front\">\n          <div class=\"tarot-card-border-decoration\" style=\"pointer-events:none;position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;\"><svg viewBox='0 0 350 600' width='100%' height='100%' fill='none' xmlns='http://www.w3.org/2000/svg' style='display:block;'><rect x='6' y='6' width='338' height='588' rx='18' stroke='#222' stroke-width='2.5' opacity='0.18'/></svg></div>\n          <div class=\"mystical-background\"></div>\n          <div class=\"card-number\">\n            <div class=\"card-number-text\">");
+    js.push_str(&index.to_string());
     js.push_str("</div>\n            <div class=\"card-title-text\">");
     js.push_str(card_title_value);
     js.push_str("</div>\n          </div>\n          <div class=\"central-illustration\">\n            <div class=\"main-star-container\" style=\"position:relative;margin-bottom:20px;\">\n              <div class=\"main-star\" style=\"font-size:140px;color:#ffd700;text-shadow:0 0 20px rgba(255,215,0,0.8);position:relative;z-index:2;filter:drop-shadow(0 0 10px rgba(255,215,0,0.5));animation:twinkle 2s ease-in-out infinite alternate;\">");
