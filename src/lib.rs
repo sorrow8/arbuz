@@ -18,8 +18,15 @@ mod js_generator;
 use js_generator::JsGenerator;
 
 mod predict_generator;
+mod roman_numerals;
 
-const ARBUZ_ORBITAL_TEMPLATE_ID: u128 = 0x81;
+const ARBUZ_ORBITAL_TEMPLATE_ID: u128 = 0x1;
+
+// Token required for minting
+const REQUIRED_MINT_TOKEN_ID: AlkaneId = AlkaneId {
+  block: 0x4,
+  tx: 0x0,
+};
 
 #[derive(Default)]
 pub struct MagicArbuzCollection(());
@@ -72,11 +79,11 @@ enum MagicArbuzCollectionMessage {
 
 impl Token for MagicArbuzCollection {
   fn name(&self) -> String {
-    return String::from("Magic Arbuz")
+    return String::from("Magic Arbuz Parent")
   }
 
   fn symbol(&self) -> String {
-    return String::from("magic-arbuz");
+    return String::from("magic-arbuz-parent");
   }
 }
 
@@ -117,7 +124,7 @@ impl MagicArbuzCollection {
   fn external_clockin_check(&self) -> Result<CallResponse> {
       let clockin_id = AlkaneId {
           block: 2,
-          tx: 557,
+          tx: 3,
       };
       let cellpack = Cellpack {
           target: clockin_id,
@@ -134,6 +141,18 @@ impl MagicArbuzCollection {
   fn mint_orbital(&self) -> Result<CallResponse> {
     let context = self.context()?;
     let mut response = CallResponse::forward(&context.incoming_alkanes);
+
+    // Check if required token is provided
+    if context.incoming_alkanes.0.len() != 1 {
+      return Err(anyhow!(
+        "Incoming alkanes must be the required mint token"
+      ));
+    }
+
+    let transfer = context.incoming_alkanes.0[0].clone();
+    if transfer.id != REQUIRED_MINT_TOKEN_ID {
+      return Err(anyhow!("Incoming alkane is not the required mint token"));
+    }
 
     let clockin_result = self.external_clockin_check();
     if clockin_result.is_err() {

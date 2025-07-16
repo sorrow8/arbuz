@@ -1,4 +1,5 @@
 use crate::predict_generator::generate_prediction;
+use crate::roman_numerals::to_roman;
 use serde_json::{Value, json};
 use anyhow::Result;
 use sha2::{Sha256, Digest};
@@ -13,6 +14,18 @@ impl JsGenerator {
   }
 
   pub fn decode_traits(index: u128) -> Result<(String, String, Vec<&'static str>, String, String, String)> {
+    // Special case for index 0 - GENESIS card
+    if index == 0 {
+      return Ok((
+        "ethereal_white".to_string(),
+        "genesis".to_string(),
+        vec!["genesis", "genesis", "genesis"],
+        "".to_string(),
+        "gold".to_string(),
+        "gold".to_string()
+      ));
+    }
+    
     let backgrounds = vec!["mystical_purple", "cosmic_blue", "golden_mystic", "rose_gold", "dark_void", "emerald_green", "blood_red", "neon_pink", "cyber_yellow", "arctic_aqua", "lava_orange", "abyss_blue", "toxic_lime", "ethereal_white", "obsidian_black", "ultraviolet"];
     let border_colors = vec!["gold", "silver", "bronze", "purple", "blue", "red", "green"];
     let glow_colors = vec!["gold", "silver", "purple", "blue", "green", "red"];
@@ -162,18 +175,24 @@ impl JsGenerator {
     let (background, main_symbol, mystical_symbols_array, card_title, border_color, glow_color) = Self::decode_traits(index)?;
     let (prediction_eng, prediction_cn) = generate_prediction(index);
 
+    let index_display = if index == 0 {
+        "GENESIS".to_string()
+    } else {
+        to_roman(index)
+    };
+
     let js_templates = Self::get_js_templates();
 
     let background_value = js_templates["background"][&background].as_str().unwrap_or("linear-gradient(135deg,rgb(255, 255, 255) 0%,rgb(255, 255, 255) 50%,rgb(255, 255, 255) 100%)");
-    let main_symbol_value = js_templates["mainSymbol"][&main_symbol].as_str().unwrap_or("🤡");
-    let card_title_value = js_templates["cardTitles"][&card_title].as_str().unwrap_or("THE FOOL");
+    let main_symbol_value = js_templates["mainSymbol"][&main_symbol].as_str().unwrap_or("");
+    let card_title_value = js_templates["cardTitles"][&card_title].as_str().unwrap_or("");
     let border_color_value = js_templates["borderColors"][&border_color].as_str().unwrap_or("#ffffff");
     let glow_color_value = js_templates["glowColors"][&glow_color].as_str().unwrap_or("transparent");
 
     let mut js = String::from("function createTarotCard(containerId) {\n  const container = document.getElementById(containerId);\n  if (!container) {\n    console.error('Container with id ' + containerId + ' not found');\n    return;\n  }\n\n  const cardData = {\n    title: '");
     js.push_str(card_title_value);
     js.push_str("',\n    subtitle: '");
-    js.push_str(&index.to_string());
+    js.push_str(&index_display);
     js.push_str("',\n    message_eng: '");
     js.push_str(&prediction_eng);
     js.push_str("',\n    message_cn: '");
@@ -228,8 +247,8 @@ impl JsGenerator {
       js.push_str(border_color_value);
       js.push_str(";\n        text-shadow: 0 0 20px ");
       js.push_str(glow_color_value);
-      js.push_str(";\n        animation: twinkle 4s ease-in-out infinite alternate;\n        z-index: 2;\n        position: relative;\n      }\n      .mystical-symbols {\n        display: flex;\n        justify-content: center;\n        gap: 10px;\n        margin-bottom: 10px;\n        margin-top: 0;\n      }\n      .mystical-symbol {\n        font-size: 32px;\n        text-shadow: 0 0 8px #a78bfa;\n        animation: glow 2.5s ease-in-out infinite alternate;\n      }\n      .small-stars-orbit{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:120px;height:120px;pointer-events:none;}.small-stars{font-size:24px;color:#c7d2fe;animation:sparkle 3s ease-in-out infinite alternate;z-index:1;pointer-events:none;}\n      .card-message {\n        text-align: center;\n        margin-top: 20px;\n      }\n      .card-message-text {\n        font-size: 16px;\n        font-weight: 600;\n        color: #cbd5e1;\n        font-style: italic;\n        line-height: 1.4;\n        text-shadow: -0.5px -0.5px 0 #222, 0.5px -0.5px 0 #222, -0.5px 0.5px 0 #222, 0.5px 0.5px 0 #222, 0 1px 4px rgba(30,30,30,0.18),0 0 5px rgba(203, 213, 225, 0.3);\n        animation: glow 4s ease-in-out infinite alternate;\n        animation-delay: 1.2s;\n        margin: 0;\n        margin-bottom: 40px;\n      }\n      .tarot-card:hover {\n        transform: rotateY(5deg) rotateX(5deg) scale(1.02);\n        filter: drop-shadow(0 25px 50px rgba(0,0,0,0.6));\n      }\n      .tarot-card:active {\n        transform: rotateY(10deg) rotateX(10deg) scale(0.98);\n      }\n    </style>\n  `;\n\n  const html = `\n    <div class=\"tarot-card-wrapper\">\n      <div class=\"tarot-card\">\n        <div class=\"tarot-card-front\">\n          <div class=\"tarot-card-border-decoration\" style=\"pointer-events:none;position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;\"><svg viewBox='0 0 350 600' width='100%' height='100%' fill='none' xmlns='http://www.w3.org/2000/svg' style='display:block;'><rect x='6' y='6' width='338' height='588' rx='18' stroke='#222' stroke-width='2.5' opacity='0.18'/></svg></div>\n          <div class=\"mystical-background\"></div>\n          <div class=\"card-number\">\n            <div class=\"card-number-text\">");
-    js.push_str(&index.to_string());
+      js.push_str(";\n        animation: twinkle 4s ease-in-out infinite alternate;\n        z-index: 2;\n        position: relative;\n      }\n      .mystical-symbols {\n        display: flex;\n        justify-content: center;\n        gap: 10px;\n        margin-bottom: 10px;\n        margin-top: 0;\n      }\n      .mystical-symbol {\n        font-size: 32px;\n        text-shadow: 0 0 8px #a78bfa;\n        animation: glow 2.5s ease-in-out infinite alternate;\n      }\n      .small-stars-orbit{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:120px;height:120px;pointer-events:none;}.small-stars{font-size:24px;color:#c7d2fe;animation:sparkle 3s ease-in-out infinite alternate;z-index:1;pointer-events:none;}\n      .card-message {\n        text-align: center;\n        margin-top: 20px;\n      }\n      .card-message-text {\n        font-size: 16px;\n        font-weight: 600;\n        color: #cbd5e1;\n        font-style: italic;\n        line-height: 1.4;\n        text-shadow: -0.5px -0.5px 0 #222, 0.5px -0.5px 0 #222, -0.5px 0.5px 0 #222, 0.5px 0.5px 0 #222, 0 1px 4px rgba(30,30,30,0.18),0 0 5px rgba(203, 213, 225, 0.3);\n        animation: glow 4s ease-in-out infinite alternate;\n        animation-delay: 1.2s;\n        margin: 0;\n        margin-bottom: 40px;\n      }\n      .tarot-card:hover {\n        transform: rotateY(5deg) rotateX(5deg) scale(1.02);\n        filter: drop-shadow(0 25px 50px rgba(0,0,0,0.6));\n      }\n      .tarot-card:active {\n        transform: rotateY(10deg) rotateX(10deg) scale(0.98);\n      }\n    </style>\n  `;\n\n  const html = `\n    <div class=\"tarot-card-wrapper\">\n      <div class=\"tarot-card\">\n        <div class=\"tarot-card-front\">\n          <div class=\"tarot-card-border-decoration\" style=\"pointer-events:none;position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;\"><svg viewBox='0 0 350 600' width='100%' height='100%' fill='none' xmlns='http://www.w3.org/2000/svg' style='display:block;'><rect x='4' y='12' width='342' height='576' rx='12' stroke='#ffe066' stroke-width='2.5' opacity='0.35'/></svg></div>\n          <div class=\"mystical-background\"></div>\n          <div class=\"card-number\">\n            <div class=\"card-number-text\">");
+    js.push_str(&index_display);
     js.push_str("</div>\n            <div class=\"card-title-text\">");
     js.push_str(card_title_value);
     js.push_str("</div>\n          </div>\n          <div class=\"central-illustration\">\n            <div class=\"main-star-container\" style=\"position:relative;margin-bottom:20px;\">\n              <div class=\"main-star\" style=\"font-size:140px;color:#ffd700;text-shadow:0 0 20px rgba(255,215,0,0.8);position:relative;z-index:2;filter:drop-shadow(0 0 10px rgba(255,215,0,0.5));animation:twinkle 2s ease-in-out infinite alternate;\">");
@@ -251,7 +270,7 @@ impl JsGenerator {
     js.push_str("</div>\n          <div class=\"card-message\">\n            <div class=\"card-message-text\">");
     js.push_str(&prediction_eng);
     js.push_str("</div>\n          </div>\n");
-    js.push_str("<button class=\"lang-switch\" style=\"position:absolute;top:10px;right:10px;z-index:10;padding:4px 12px;border-radius:8px;border:none;background:#fff3;backdrop-filter:blur(2px);color:#6b7280;font-weight:700;cursor:pointer;transition:background 0.2s;\">🇨🇳</button>");
+    js.push_str("<button class=\"lang-switch\" style=\"position:absolute;top:13px;right:15px;z-index:10;padding:4px 12px;border-radius:12px;border:none;background:#fff3;backdrop-filter:blur(2px);color:#6b7280;font-weight:700;cursor:pointer;transition:background 0.2s;\">🇨🇳</button>");
     js.push_str("\n        </div>\n      </div>\n    </div>\n  `;\n\n  container.innerHTML = styles + html;\n\n  const tarotCard = container.querySelector('.tarot-card');\n  if (tarotCard) {\n    tarotCard.addEventListener('mousemove', function(e) {\n      const rect = tarotCard.getBoundingClientRect();\n      const x = e.clientX - rect.left;\n      const y = e.clientY - rect.top;\n      const centerX = rect.width / 2;\n      const centerY = rect.height / 2;\n      let rotateX = (y - centerY) / 10;\n      let rotateY = (centerX - x) / 10;\n      const maxAngle = 10;\n      rotateX = Math.max(-maxAngle, Math.min(maxAngle, rotateX));\n      rotateY = Math.max(-maxAngle, Math.min(maxAngle, rotateY));\n      tarotCard.style.transform = 'rotateY(' + rotateY + 'deg) rotateX(' + rotateX + 'deg) scale(1.05)';\n      tarotCard.style.filter = 'drop-shadow(0 30px 60px rgba(0,0,0,0.6))';\n    });\n    tarotCard.addEventListener('mouseleave', function() {\n      tarotCard.style.transform = 'rotateY(0deg) rotateX(0deg) scale(1)';\n      tarotCard.style.filter = 'drop-shadow(0 20px 40px rgba(0,0,0,0.5))';\n    });\n  }\n  const langBtn = container.querySelector('.lang-switch');\n  const messageDiv = container.querySelector('.card-message-text');\n  let currentLang = 'eng';\n  if (langBtn && messageDiv) {\n    langBtn.addEventListener('click', function() {\n      if (currentLang === 'eng') {\n        messageDiv.textContent = cardData.message_cn;\n        langBtn.textContent = '🇺🇸';\n        currentLang = 'cn';\n      } else {\n        messageDiv.textContent = cardData.message_eng;\n        langBtn.textContent = '🇨🇳';\n        currentLang = 'eng';\n      }\n    });\n  }\n}\n\nif (typeof document !== 'undefined') {\n  document.addEventListener('DOMContentLoaded', function() {\n    createTarotCard('tarot-container');\n  });\n}");
 
     Ok(js)

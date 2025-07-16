@@ -50,7 +50,8 @@
       "clock": "⏰",
       "chick": "🐥",
       "fartane": "💀",
-      "arbuz": "🍉"
+      "arbuz": "🍉",
+      "genesis": "🌱"
     },
     
     "cardTitles": {
@@ -85,7 +86,8 @@
       "clockin_card": "CLOCKIN CARD",
       "cheekyb_card": "CHEEKYB CARD",
       "fartane_card": "FARTANE CARD",
-      "arbuz_card": "ARBUZ CARD"
+      "arbuz_card": "ARBUZ CARD",
+      "genesis": "GENESIS"
     },
     
     "borderColors": {
