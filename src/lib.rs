@@ -20,12 +20,11 @@ use js_generator::JsGenerator;
 mod predict_generator;
 mod roman_numerals;
 
-const ARBUZ_ORBITAL_TEMPLATE_ID: u128 = 0x1;
+const CHILD_ORBITAL_TEMPLATE_ID: u128 = 7;
 
-// Token required for minting
-const REQUIRED_MINT_TOKEN_ID: AlkaneId = AlkaneId {
-  block: 0x4,
-  tx: 0x0,
+const ARBUZ_TOKEN_TEMPLATE: AlkaneId = AlkaneId {
+  block: 2,
+  tx: 2,
 };
 
 #[derive(Default)]
@@ -79,11 +78,11 @@ enum MagicArbuzCollectionMessage {
 
 impl Token for MagicArbuzCollection {
   fn name(&self) -> String {
-    return String::from("Magic Arbuz Parent")
+    return String::from("Magic Arbuz Collection")
   }
 
   fn symbol(&self) -> String {
-    return String::from("magic-arbuz-parent");
+    return String::from("magic-arbuz-collection");
   }
 }
 
@@ -124,7 +123,7 @@ impl MagicArbuzCollection {
   fn external_clockin_check(&self) -> Result<CallResponse> {
       let clockin_id = AlkaneId {
           block: 2,
-          tx: 3,
+          tx: 1,
       };
       let cellpack = Cellpack {
           target: clockin_id,
@@ -140,25 +139,47 @@ impl MagicArbuzCollection {
 
   fn mint_orbital(&self) -> Result<CallResponse> {
     let context = self.context()?;
-    let mut response = CallResponse::forward(&context.incoming_alkanes);
 
-    // Check if required token is provided
-    if context.incoming_alkanes.0.len() != 1 {
-      return Err(anyhow!(
-        "Incoming alkanes must be the required mint token"
-      ));
+    // Find ARBUZ token in incoming alkanes
+    let arbuz_transfer = context.incoming_alkanes.0.iter()
+      .find(|transfer| transfer.id == ARBUZ_TOKEN_TEMPLATE);
+
+    if arbuz_transfer.is_none() {
+      return Err(anyhow!("Incoming alkanes must include ARBUZ"));
     }
 
-    let transfer = context.incoming_alkanes.0[0].clone();
-    if transfer.id != REQUIRED_MINT_TOKEN_ID {
-      return Err(anyhow!("Incoming alkane is not the required mint token"));
+    let arbuz_transfer = arbuz_transfer.unwrap();
+
+    // Check if at least 100 ARBUZ tokens are provided (considering divisibility of 8)
+    let required_arbuz_amount = 100 * 100_000_000u128; // 100 ARBUZ with divisibility 8
+    if arbuz_transfer.value < required_arbuz_amount {
+      return Err(anyhow!("Mint cost is at least 100 ARBUZ tokens"));
     }
 
     let clockin_result = self.external_clockin_check();
     if clockin_result.is_err() {
-        return Err(anyhow!("Clock-in failed, cards say you are retarded:("));
+        return Err(anyhow!("Invalid clock-in block, cards say better luck next time"));
     }
+
+    // Return arbuz card and hold 100 ARBUZ tokens in contract
+    let mut response = CallResponse::default();
     response.alkanes.0.push(self.create_mint_transfer()?);
+    
+    // Return excess ARBUZ tokens back to user
+    if arbuz_transfer.value > required_arbuz_amount {
+      response.alkanes.0.push(AlkaneTransfer {
+        id: ARBUZ_TOKEN_TEMPLATE,
+        value: arbuz_transfer.value - required_arbuz_amount,
+      });
+    }
+    
+    // Return other alkanes back if not ARBUZ token
+    for transfer in &context.incoming_alkanes.0 {
+      if transfer.id != ARBUZ_TOKEN_TEMPLATE {
+        response.alkanes.0.push(transfer.clone());
+      }
+    }
+
     Ok(response)
 }
 
@@ -168,7 +189,7 @@ impl MagicArbuzCollection {
     let cellpack = Cellpack {
       target: AlkaneId {
         block: 6,
-        tx: ARBUZ_ORBITAL_TEMPLATE_ID,
+        tx: CHILD_ORBITAL_TEMPLATE_ID,
       },
       inputs: vec![0x0, index],
     };
