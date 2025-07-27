@@ -27,4 +27,8 @@ oyl alkane trace -params '{"txid":"txid","vout":3}' -p regtest
 ## Simulate
 ```bash
 oyl alkane simulate -p regtest -target 2:txid -inputs opcode,index
+
+oyl alkane simulate -p regtest -target 2:40 -inputs 999,0
+
+oyl alkane simulate -p regtest -target 2:40 -inputs 99
 ```

@@ -196,14 +196,18 @@ impl JsGenerator {
   }
 
   pub fn get_attributes(index: u128) -> Result<String> {
-    println!("[DEBUG] get_attributes called with index: {}", index);
     let (background, main_symbol, mystical_symbols_array, card_title, border_color, glow_color) = Self::decode_traits(index)?;
     let (prediction, _prediction_cn) = crate::predict_generator::generate_prediction(index);
 
+    let js_templates = Self::get_js_templates();
+
     let attributes = json!({
       "background": background,
-      "mainSymbol": main_symbol,
-      "mysticalSymbols": mystical_symbols_array.join(","),
+      "mainSymbol": Self::get_template_value(&js_templates, "mainSymbol", &main_symbol, "💩"),
+      "mysticalSymbols": mystical_symbols_array.iter()
+        .map(|symbol| Self::get_template_value(&js_templates, "mainSymbol", symbol, "💩"))
+        .collect::<Vec<String>>()
+        .join(","),
       "cardTitle": card_title,
       "cardNumberIndex": index.to_string(),
       "borderColor": border_color,

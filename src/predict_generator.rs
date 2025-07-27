@@ -106,7 +106,7 @@ pub fn generate_prediction(index: u128) -> (String, String) {
         ["Your Waiter", "你的服务员"],
         ["Your Barista", "你的咖啡师"],
         ["Your Therapist", "你的治疗师"],
-        ["Your Neighbor's Dog", "你邻居的狗"],
+        ["Your Neighbor\\'s Dog", "你邻居的狗"],
         ["Your Cat", "你的猫"],
         ["Your Dog", "你的狗"],
         ["Your Pet", "你的宠物"],
