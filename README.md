@@ -1,5 +1,7 @@
 # This Magic Arbuz Mint Contract
 
+![ARBUZ Logo](./arbuz.png)
+
 ## Build
 ```bash
 cargo build --target wasm32-unknown-unknown --release
