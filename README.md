@@ -1,6 +1,8 @@
 # This Magic Arbuz Mint Contract
 
-![ARBUZ Logo](./arbuz.png)
+<p align="center">
+  <img src="./arbuz.png" alt="ARBUZ Logo" width="200">
+</p>
 
 ## Build
 ```bash
