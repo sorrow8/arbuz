@@ -1,4 +1,4 @@
-# This Magic Arbuz Mint Contract
+# This Is Magic Arbuz Mint Contract
 
 <p align="center">
   <img src="./arbuz.png" alt="ARBUZ Logo">
