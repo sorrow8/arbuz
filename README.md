@@ -1,7 +1,7 @@
 # This Magic Arbuz Mint Contract
 
 <p align="center">
-  <img src="./arbuz.png" alt="ARBUZ Logo" width="200">
+  <img src="./arbuz.png" alt="ARBUZ Logo">
 </p>
 
 ## Build
