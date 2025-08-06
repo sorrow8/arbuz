@@ -1,3 +1,5 @@
+# This Magic Arbuz Mint Contract
+
 ## Build
 ```bash
 cargo build --target wasm32-unknown-unknown --release
@@ -5,30 +7,20 @@ cargo build --target wasm32-unknown-unknown --release
 
 ## Deploy
 ```bash
-oyl alkane new-contract -c ./target/wasm32-unknown-unknown/release/magic_arbuz.wasm -data 1,0 -p regtest
-```
-
-## Gen block
-```bash
-oyl regtest genBlocks -c -p regtest
+oyl alkane new-contract -c ./target/wasm32-unknown-unknown/release/magic_arbuz.wasm -data 1,0 -p network
 ```
 
 ## Trace
 ```bash
-oyl alkane trace -params '{"txid":"7e9a8e16cba3ff2ea986afb9422224f6b882f6f253796f827f0c56d6e592cbb7","vout":3}' -p regtest
+oyl alkane trace -params '{"txid":"tx_id","vout":3}' -p network
 ```
 
-## Minting
+## Mint
 ```bash
-oyl alkane execute -data 2,23,77 -p regtest
-oyl alkane trace -params '{"txid":"txid","vout":3}' -p regtest
+oyl alkane execute -data 2,id,77 -p network
 ```
 
 ## Simulate
 ```bash
-oyl alkane simulate -p regtest -target 2:txid -inputs opcode,index
-
-oyl alkane simulate -p regtest -target 2:40 -inputs 999,0
-
-oyl alkane simulate -p regtest -target 2:40 -inputs 99
+oyl alkane simulate -p network -target 2:id -inputs opcode,index_if_applicable
 ```

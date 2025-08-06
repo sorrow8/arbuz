@@ -20,7 +20,7 @@ use js_generator::JsGenerator;
 mod predict_generator;
 mod roman_numerals;
 
-const CHILD_ORBITAL_TEMPLATE_ID: u128 = 427;
+const CHILD_ORBITAL_TEMPLATE_ID: u128 = 2;
 
 const ARBUZ_TOKEN_TEMPLATE: AlkaneId = AlkaneId {
   block: 2,
@@ -123,7 +123,7 @@ impl MagicArbuzCollection {
   fn external_clockin_check(&self) -> Result<CallResponse> {
       let clockin_id = AlkaneId {
           block: 2,
-          tx: 58,
+          tx: 1,
       };
       let cellpack = Cellpack {
           target: clockin_id,

@@ -2,7 +2,6 @@ use std::string::String;
 use sha2::{Sha256, Digest};
 
 pub fn generate_prediction(index: u128) -> (String, String) {
-    // Special case for index 0 - GENESIS card
     if index == 0 {
         return (
             "EVERY JOURNEY BEGINS WITH A SINGLE STEP".to_string(),
@@ -200,12 +199,10 @@ pub fn generate_prediction(index: u128) -> (String, String) {
     hasher.update(index.to_le_bytes());
     let hash = hasher.finalize();
 
-    // Используем разные части хеша для определения типа предсказания
-    let prediction_type = hash[24] % 2; // 0 или 1 для двух типов
+    let prediction_type = hash[24] % 2;
 
     match prediction_type {
         0 => {
-            // Персональные предсказания (существующие)
             let f_idx = (u64::from_le_bytes(hash[0..8].try_into().unwrap()) % future.len() as u64) as usize;
             let s_idx = (u64::from_le_bytes(hash[8..16].try_into().unwrap()) % subject.len() as u64) as usize;
             let v_idx = (u64::from_le_bytes(hash[16..24].try_into().unwrap()) % verb.len() as u64) as usize;
@@ -220,22 +217,21 @@ pub fn generate_prediction(index: u128) -> (String, String) {
             )
         },
         _ => {
-            // Общие пожелания (улучшенные) - убрал самые абстрактные фразы
             let general_beginnings = [
                 ["Good fortune", "好运"],
                 ["The stars", "星辰"],
-                ["Luck smiles", "幸运微笑"],
+                ["Luck", "幸运"],
                 ["Your wish", "你的愿望"],
                 ["The universe", "宇宙"],
                 ["Your dreams", "你的梦想"],
                 ["A surprise", "惊喜"],
-                ["Change brings", "变化带来"],
+                ["Change", "变化"],
                 ["Your patience", "你的耐心"],
                 ["A breakthrough", "突破"],
                 ["The path", "道路"],
                 ["Your efforts", "你的努力"],
                 ["An angel", "天使"],
-                ["Magic surrounds", "魔法围绕"],
+                ["Magic", "魔法"],
                 ["Your heart", "你的心"],
                 ["A golden chance", "黄金机会"],
                 ["The tides", "潮流"],
@@ -245,7 +241,7 @@ pub fn generate_prediction(index: u128) -> (String, String) {
                 ["Your intuition", "你的直觉"],
                 ["A pure wish", "纯净愿望"],
                 ["Your energy", "你的能量"],
-                ["A door opens", "门打开"],
+                ["A door", "门"],
                 ["Your power", "你的力量"],
                 ["Your courage", "你的勇气"],
                 ["Perfect clarity", "完美清晰"],
@@ -254,8 +250,8 @@ pub fn generate_prediction(index: u128) -> (String, String) {
                 ["Good luck", "好运"],
                 ["Your inner light", "内在光芒"],
                 ["Your gifts", "你的天赋"],
-                ["Support surrounds", "支持围绕"],
-                ["Wisdom finds", "智慧找到"],
+                ["Support", "支持"],
+                ["Wisdom", "智慧"],
                 ["Your spark", "你的火花"],
                 ["A bridge", "桥梁"],
                 ["Harmony", "和谐"],
@@ -267,41 +263,41 @@ pub fn generate_prediction(index: u128) -> (String, String) {
                 ["Peace", "和平"],
                 ["Your journey", "你的旅程"],
                 ["Celebration", "庆祝"],
-                ["Truth reveals", "真相揭示"],
+                ["Truth", "真相"],
                 ["Your spirit", "你的精神"],
                 ["Connection", "连接"],
-                ["Abundance flows", "丰盛流动"],
+                ["Abundance", "丰盛"],
                 ["Your voice", "你的声音"],
                 ["Your story", "你的故事"],
-                ["Healing begins", "治愈开始"],
+                ["Healing", "治愈"],
                 ["Your light", "你的光芒"]
             ];
             
             let general_middles = [
                 ["awaits you", "等待你"],
-                ["align for you", "为你排列"],
-                ["upon you", "对你"],
+                ["aligns for you", "为你排列"],
+                ["comes upon you", "降临到你"],
                 ["comes true", "成真"],
                 ["helps you", "帮助你"],
-                ["are near", "就在附近"],
+                ["draws near", "接近"],
                 ["finds you", "找到你"],
-                ["is rewarded", "得到回报"],
-                ["is close", "即将到来"],
-                ["is bright", "明亮"],
+                ["rewards you", "奖励你"],
+                ["comes close", "接近"],
+                ["shines bright", "明亮闪耀"],
                 ["bears fruit", "结果"],
-                ["watches you", "注视你"],
+                ["watches over you", "守护你"],
                 ["surrounds you", "围绕你"],
-                ["is within reach", "触手可及"],
+                ["comes within reach", "触手可及"],
                 ["appears", "出现"],
-                ["turns for you", "为你转向"],
+                ["turns toward you", "转向你"],
                 ["shines through", "闪耀"],
                 ["approaches", "接近"],
                 ["leads to treasure", "通向宝藏"],
                 ["guides you", "引导你"],
                 ["manifests", "实现"],
-                ["rewards you", "奖励你"],
+                ["blesses you", "祝福你"],
                 ["attracts miracles", "吸引奇迹"],
-                ["unexpectedly", "意想不到"],
+                ["comes unexpectedly", "意想不到地到来"],
                 ["transforms", "转变"],
                 ["is celebrated", "被赞美"],
                 ["arrives", "到来"],
@@ -311,18 +307,18 @@ pub fn generate_prediction(index: u128) -> (String, String) {
                 ["illuminates", "照亮"],
                 ["is discovered", "被发现"],
                 ["embraces you", "拥抱你"],
-                ["finds you", "找到你"],
+                ["seeks you", "寻找你"],
                 ["ignites", "点燃"],
-                ["appears", "出现"],
+                ["emerges", "出现"],
                 ["is here", "在这里"],
                 ["becomes your power", "成为你的力量"],
                 ["reminds you", "提醒你"],
                 ["returns multiplied", "成倍回报"],
                 ["unfolds", "展开"],
                 ["begins", "开始"],
-                ["is yours", "是你的"],
+                ["belongs to you", "属于你"],
                 ["takes a turn", "转向"],
-                ["awaits", "等待"],
+                ["waits patiently", "耐心等待"],
                 ["reveals itself", "揭示自己"],
                 ["soars", "翱翔"],
                 ["deepens", "加深"],
