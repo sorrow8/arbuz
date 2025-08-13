@@ -37,9 +37,6 @@ enum MagicArbuzCollectionMessage {
   #[opcode(0)]
   Initialize,
 
-  #[opcode(69)]
-  AuthMintOrbital { count: u128 },
-
   #[opcode(77)]
   MintOrbital,
 
@@ -91,34 +88,11 @@ impl MagicArbuzCollection {
     self.observe_initialization()?;
     let context = self.context()?;
 
-    let mut response = CallResponse::forward(&context.incoming_alkanes);
-
-    // Collection token acts as auth token for contract minting without any limits
-    response.alkanes.0.push(AlkaneTransfer {
-      id: context.myself.clone(),
-      value: 10u128,
-    });
+    let response = CallResponse::forward(&context.incoming_alkanes);
 
     Ok(response)
   }
 
-  fn auth_mint_orbital(&self, count: u128) -> Result<CallResponse> {
-    let context = self.context()?;
-    let mut response = CallResponse::forward(&context.incoming_alkanes);
-
-    // Authorized mints
-    self.only_owner()?;
-
-    let mut minted_orbitals = Vec::new();
-
-    for _ in 0..count {
-      minted_orbitals.push(self.create_mint_transfer()?);
-    }
-
-    response.alkanes.0.extend(minted_orbitals);
-
-    Ok(response)
-  }
 
   fn external_clockin_check(&self) -> Result<CallResponse> {
       let clockin_id = AlkaneId {
@@ -295,28 +269,6 @@ impl MagicArbuzCollection {
     Ok(new_count)
   }
 
-  fn only_owner(&self) -> Result<()> {
-    let context = self.context()?;
-
-    if context.incoming_alkanes.0.len() != 1 {
-      return Err(anyhow!(
-        "did not authenticate with only the collection token"
-      ));
-    }
-
-    let transfer = context.incoming_alkanes.0[0].clone();
-    if transfer.id != context.myself.clone() {
-      return Err(anyhow!("supplied alkane is not collection token"));
-    }
-
-    if transfer.value < 1 {
-      return Err(anyhow!(
-        "less than 1 unit of collection token supplied to authenticate"
-      ));
-    }
-
-    Ok(())
-  }
 
   fn lookup_instance(&self, index: u128) -> Result<AlkaneId> {
     // Add 1 to index since instances are stored at 1-based indices
