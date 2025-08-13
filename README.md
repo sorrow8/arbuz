@@ -4,6 +4,7 @@
   <img src="./arbuz.png" alt="ARBUZ Logo">
 </p>
 
+### For Local Testing:
 ## Build
 ```bash
 cargo build --target wasm32-unknown-unknown --release
