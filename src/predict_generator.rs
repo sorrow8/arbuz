@@ -4,7 +4,7 @@ use sha2::{Sha256, Digest};
 pub fn generate_prediction(index: u128) -> (String, String) {
     if index == 0 {
         return (
-            "EVERY JOURNEY BEGINS WITH A SINGLE STEP".to_string(),
+            "A JOURNEY OF A THOUSAND MILES BEGINS WITH A SINGLE STEP".to_string(),
             "千里之行，始于足下".to_string()
         );
     }
