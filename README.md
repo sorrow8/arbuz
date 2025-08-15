@@ -17,7 +17,7 @@ oyl alkane new-contract -c ./target/wasm32-unknown-unknown/release/magic_arbuz.w
 
 ## Trace
 ```bash
-oyl alkane trace -params '{"txid":"b29498ec78efa7b7f36c9010c1c7b72bf3992bb1252fca429b22caf34e942764","vout":3}' -p regtest
+oyl alkane trace -params '{"txid":"txid","vout":3}' -p regtest
 ```
 
 ## Simulate
